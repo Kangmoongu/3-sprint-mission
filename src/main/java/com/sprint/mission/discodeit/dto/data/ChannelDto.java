@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Getter
 @AllArgsConstructor
-public class ChannelDTO {
+public class ChannelDto {
     private ChannelType type;
     private String name;
     private UUID id;
