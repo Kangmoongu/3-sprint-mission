@@ -2,9 +2,12 @@ package com.sprint.mission.discodeit.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 
-import java.util.UUID;
-
 public record LoginRequest(
-        @NotBlank UUID userId,
-        @NotBlank String password
-) { }
+    @NotBlank(message = "사용자 이름은 필수입니다")
+    String username,
+    
+    @NotBlank(message = "비밀번호는 필수입니다")
+    String password
+) {
+
+}

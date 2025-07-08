@@ -1,17 +1,12 @@
 package com.sprint.mission.discodeit.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import jakarta.validation.constraints.Size;
 
-import java.util.UUID;
+public record MessageUpdateRequest(
+    @NotBlank(message = "메시지 내용은 필수입니다")
+    @Size(max = 2000, message = "메시지 내용은 2000자 이하여야 합니다")
+    String newContent
+) {
 
-@Getter
-@AllArgsConstructor
-public class MessageUpdateRequest {
-    @NotBlank
-    UUID messageId;
-
-    @NotBlank
-    String content;
 }

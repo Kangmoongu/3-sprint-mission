@@ -1,50 +1,42 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.user.InvalidCredentialsException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.UUID;
-
-@Service
+@Slf4j
 @RequiredArgsConstructor
+@Service
 public class BasicAuthService implements AuthService {
-    private final UserRepository userRepository;
-    private final UserStatusRepository userStatusRepository; //이후에 login 로직에서 사용
 
-    // 수정해야될 로직 (user가 직접 password를 판단)
-    @Override
-    public UserStatus login(UUID userId, String password) {
-        User user = userRepository.loadById(userId);
-        if (user == null) {
-            throw new IllegalArgumentException("[Auth] 유효하지 않은 사용자입니다. (userID: " + userId + ")");
-        }
+  private final UserRepository userRepository;
+  private final UserMapper userMapper;
 
-        validatePassword(user, password);
-        UserStatus userStatus =  updateUserStatus(user.getId());
+  @Transactional(readOnly = true)
+  @Override
+  public UserDto login(LoginRequest loginRequest) {
+    log.debug("로그인 시도: username={}", loginRequest.username());
+    
+    String username = loginRequest.username();
+    String password = loginRequest.password();
 
-        return userStatus;
+    User user = userRepository.findByUsername(username)
+        .orElseThrow(() -> UserNotFoundException.withUsername(username));
+
+    if (!user.getPassword().equals(password)) {
+      throw InvalidCredentialsException.wrongPassword();
     }
 
-    @Override
-    public void validatePassword(User user, String password) {
-        if (!user.getPassword().equals(password)) {
-            throw new IllegalArgumentException("[Auth] 패스워드가 일치하지 않습니다. (password: " + password + ")");
-        }
-    }
-
-    @Override
-    public UserStatus updateUserStatus(UUID userId) {
-        UserStatus userStatus =  userStatusRepository.loadById(userId);
-        if (userStatus == null) {
-            throw new IllegalArgumentException("[Auth] 유효하지 않은 UserStatus (userId: " + userId + ")");
-        }
-
-        userStatus.update();
-        return userStatusRepository.save(userStatus);
-    }
+    log.info("로그인 성공: userId={}, username={}", user.getId(), username);
+    return userMapper.toDto(user);
+  }
 }

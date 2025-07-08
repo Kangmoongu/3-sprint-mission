@@ -1,62 +1,41 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.*;
-
+@Entity
+@Table(name = "channels")
 @Getter
-public class Channel implements Serializable {
-    private final UUID id;
-    private final ChannelType type;
-    private String name;
-    private String description;
-    private Set<UUID> memberIds;
-    private final Instant createdAt;
-    private Instant updatedAt;
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Channel extends BaseUpdatableEntity {
 
-    @Serial
-    private static final long serialVersionUID = 5544881428014541716L;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private ChannelType type;
+  @Column(length = 100)
+  private String name;
+  @Column(length = 500)
+  private String description;
 
-    private Channel(ChannelType channelType, String name, String description, Set<UUID> memberIds) {
-        this.id = UUID.randomUUID();
-        this.type = channelType;
-        this.name = name;
-        this.description = description;
-        this.memberIds = new HashSet<>(memberIds);
-        this.createdAt = Instant.now();;
-        this.updatedAt = this.createdAt;
-    }
+  public Channel(ChannelType type, String name, String description) {
+    this.type = type;
+    this.name = name;
+    this.description = description;
+  }
 
-    // 정적 팩토리 메서드, 객체를 만들지 않고 호출 가능해야 하기 때문에 static으로 선언
-    public static Channel ofPublic(String name, String description) {
-        return new Channel(ChannelType.PUBLIC, name, description, Set.of());
+  public void update(String newName, String newDescription) {
+    if (newName != null && !newName.equals(this.name)) {
+      this.name = newName;
     }
-    public static Channel ofPrivate(Set<UUID> memberIds) {
-        return new Channel(ChannelType.PRIVATE, null, null, memberIds);
+    if (newDescription != null && !newDescription.equals(this.description)) {
+      this.description = newDescription;
     }
-
-    public void join(UUID userId) {
-        memberIds.add(userId);
-    }
-
-    public void leave(UUID userId) {
-        memberIds.remove(userId);
-    }
-
-    public boolean isMember(UUID userId) {
-        return memberIds.contains(userId);
-    }
-
-    public void updateName(String name) {
-        this.name = name;
-        this.updatedAt = Instant.now();;
-    }
-
-    @Override
-    public String toString() {
-        return "[Channel] {" + type + " name=" + name + " id=" +  id + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + "}" + "members=" + memberIds + "}";
-    }
+  }
 }
