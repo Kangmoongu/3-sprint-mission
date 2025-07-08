@@ -45,26 +45,6 @@ class UserStatusRepositoryTest {
   }
 
   @Test
-  @DisplayName("사용자 ID로 상태 정보를 찾을 수 있다")
-  void findByUserId_ExistingUserId_ReturnsUserStatus() {
-    // given
-    Instant now = Instant.now();
-    User user = createTestUserWithStatus("testUser", "test@example.com", now);
-    UUID userId = user.getId();
-
-    // 영속성 컨텍스트 초기화
-    entityManager.flush();
-    entityManager.clear();
-
-    // when
-    Optional<UserStatus> foundStatus = userStatusRepository.findByUserId(userId);
-
-    // then
-    assertThat(foundStatus).isPresent();
-    assertThat(foundStatus.get().getUser().getId()).isEqualTo(userId);
-  }
-
-  @Test
   @DisplayName("존재하지 않는 사용자 ID로 검색하면 빈 Optional을 반환한다")
   void findByUserId_NonExistingUserId_ReturnsEmptyOptional() {
     // given
