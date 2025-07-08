@@ -1,13 +1,22 @@
 package com.sprint.mission.discodeit.dto.data;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 import java.util.UUID;
 
-public record UserDto(
-    UUID id,
-    String username,
-    String email,
-    BinaryContentDto profile,
-    Boolean online
-) {
+@Getter
+@AllArgsConstructor
+public class UserDto {
+    private UUID id;
+    private String name;
+    private String email;
+    private UUID profileId;
+    private Boolean isLoggedIn;
 
+    @Override
+    public String toString() {
+        return "[UserDTO] {" + name + " id=" + id + ", email=" + email + ", loggedIn=" + isLoggedIn + "}";
+    }
 }
+
